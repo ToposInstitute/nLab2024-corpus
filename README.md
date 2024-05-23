@@ -17,7 +17,8 @@ python -m spacy download en_core_web_sm`
 * spacy_conll[all]
 * jupyterlab
 
-To run 
+To run:
+
 The Perl program conllu-stats.pl needs cpan packages JSON and JSON::Parse and udlib.pm needs to to be included from https://github.com/UniversalDependencies/tools/blob/master/udlib.pm .
 
 ### software pipeline
