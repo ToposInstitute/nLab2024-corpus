@@ -7,7 +7,7 @@ import warnings
 import os
 import re
 
-os.chdir("/NetMath/nlab/data")
+os.chdir("/NetMath/nLab2024/2024")
 if os.path.exists('nlab_pages.json'):
     os.remove('nlab_pages.json')
 if os.path.exists('nlab_scrape.json'):
@@ -15,10 +15,8 @@ if os.path.exists('nlab_scrape.json'):
 
 warnings.filterwarnings("ignore", category=scrapy.exceptions.ScrapyDeprecationWarning)
 
-delete_cnt = 0
-ignore_cnt = 0
-empty_cnt = 0
-page_cnt = 0
+cnt = {"delete": 0, "ignore": 0, "err": 0, "empty": 0, "misc": 0,
+    "page": 0, "people": 0, "joke": 0, "svg": 0, "meta": 0}
 
 class nLabPagesSpider(scrapy.Spider):
     name = "nlab_pages"    
@@ -44,31 +42,42 @@ class nLabPagesSpider(scrapy.Spider):
         yield from response.follow_all(source_links, self.parse_page_source)
 
     def parse_page_source(self, response):
-        global delete_cnt
-        global ignore_cnt
-        global page_cnt
-        global empty_cnt 
+        global cnt
 
         page_name = urllib.parse.unquote_plus(response.url.rsplit("/",1)[-1])
         if "Sandbox" in page_name or " > history" in page_name:
             page_name = "DELETE"
             source = ""
-            delete_cnt += 1
+            cnt["delete"] += 1
         else: 
             try:
                 source = response.css("textarea::text").get()
                 source = re.sub("\r\n", "\n", source) 
-                match = re.search("category: {people|joke|svg|meta}", source)
-                if match:
+                type_match = re.search(r'category:\s+(people|joke|svg|meta|empty)', source)
+                if type_match:
+                    type = type_match.group(1)
+                    match type:
+                        case "people":
+                            cnt["people"] += 1
+                        case "joke":
+                            cnt["joke"] += 1
+                        case "svg":
+                            cnt["svg"] += 1
+                        case "meta":
+                            cnt["meta"] += 1
+                        case "empty":
+                            cnt["empty"] += 1
+                        case "people":
+                            cnt["people"] += 1
                     page_name = "IGNORE"
                     source = ""    
-                    ignore_cnt += 1
-                else:
-                    page_cnt += 1                   
+                    cnt["ignore"] += 1
+                else:     
+                    cnt["page"] += 1                               
             except Exception as err:
-                page_name = "EMPTY"
+                page_name = "ERR"
                 source = ""    
-                empty_cnt += 1    
+                cnt["err"] += 1             
         yield {
             "name": page_name,
             "url": response.url,
@@ -84,9 +93,9 @@ if __name__ == "__main__":
     process.crawl(nLabPagesSpider)
     process.start()
 
-    print("Good pages: ", page_cnt)
-    print("Empty: ", empty_cnt)
-    print("Delete: ", delete_cnt)
-    print("Ignore: ", ignore_cnt)
+    for key, value in cnt.items():
+        print(key, "   ", value)
+
+
     os.system('echo \a')
 

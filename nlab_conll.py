@@ -4,7 +4,7 @@ from tqdm import tqdm
 import spacy
 from spacy_conll import init_parser
 
-os.chdir('/NetMath/nLab/data')
+os.chdir('/NetMath/nLab2024/2024')
 if os.path.exists('nlab_new.json'):
     os.remove('nlab_new.json')
 
@@ -46,7 +46,8 @@ def get_conllu_format(doc):
 
 with open('nlab_clean.json', 'r', encoding="utf-8") as input, open('nlab2024.conll', 'w', encoding="utf-8") as output:
     lines = []   
-    items = list(range(1800000))
+    halt = True
+    items = list(range(56000))
     cnt = 0
     for item in tqdm(items):
         rec = input.readline()
