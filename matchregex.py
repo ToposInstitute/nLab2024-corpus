@@ -46,7 +46,7 @@ def get_conllu_format(doc):
     clines = []
     for sent_id, sent in enumerate(doc.sents, start=1):
         clines.append(f"# sent_id = {sent_id}")
-        clines.append(f"# text = {sent.text}")
+        clines.append(f"# text = {sent.text}")        
         for token_id, token in enumerate(sent, start=1):
             line = [
                 token_id,  # ID
@@ -65,14 +65,11 @@ def get_conllu_format(doc):
     return "\n".join(clines)
 
 with open('nlab_2024clean.json', 'r', encoding="utf-8") as input, \
-     open('nlab2024.conll', 'w', encoding="utf-8") as output:
+     open('nlab2024.conll', 'w', encoding="utf-8") as output, \
+     open('nlab2024report.txt', 'w', encoding="utf-8") as report:
     lines = []   
     halt = True
-<<<<<<< HEAD
     items = list(range(41000))
-=======
-    items = list(range(56000))
->>>>>>> d86a2b76aab141ecf8d878291fb8ed3792f59f12
     cnt = 0
     for item in tqdm(items):
         rec = input.readline()
@@ -83,6 +80,17 @@ with open('nlab_2024clean.json', 'r', encoding="utf-8") as input, \
             data = re.sub(r'\s+', ' ', data)
             data = re.sub(r'{', '\n', data)            
             doc = conll_parser(data)
+            #report.write(str(len(list(doc.sents)))+"\n")
+
+            num_sentences = 0
+
+            # Iterate over sentences to count them and print their root tokens
+            for sentence in doc.sents:
+                num_sentences += 1
+                report.write(f"Sentence {num_sentences} root: {sentence.root.text}\n")
+                if sentence.root.text == " \n ":
+                    report.write(f"  Sentence text: {sentence.text} \n")
+
             conllu_output = get_conllu_format(doc)
             output.write(conllu_output)
             lines = []
@@ -90,5 +98,6 @@ with open('nlab_2024clean.json', 'r', encoding="utf-8") as input, \
         elif "}" in rec:
             rec = ""
         elif rec == "":
+            output.write("]\n")
             break           
         lines.append(rec)
