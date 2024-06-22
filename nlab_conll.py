@@ -54,11 +54,11 @@ def get_conllu_format(doc):
                 token.lemma_,  # LEMMA
                 token.pos_,  # UPOS
                 token.tag_,  # XPOS
-                "_",  # FEATS (can be replaced with actual features)
+                " ", # "_",   FEATS (can be replaced with actual features)
                 token.head.i - token.sent[0].i + 1 if token.head != token else 0,  # HEAD
                 token.dep_,  # DEPREL
-                "_",  # DEPS
-                "_" if token.whitespace_ else "SpaceAfter=No"  # MISC
+                " ", # "_",  # DEPS
+                " ", # "_", if token.whitespace_ else "SpaceAfter=No"  # MISC
             ]
             clines.append("\t".join(map(str, line)))
         clines.append("")
@@ -68,11 +68,7 @@ with open('nlab_2024clean.json', 'r', encoding="utf-8") as input, \
      open('nlab2024.conll', 'w', encoding="utf-8") as output:
     lines = []   
     halt = True
-<<<<<<< HEAD
-    items = list(range(41000))
-=======
-    items = list(range(56000))
->>>>>>> d86a2b76aab141ecf8d878291fb8ed3792f59f12
+    items = list(range(100000))
     cnt = 0
     for item in tqdm(items):
         rec = input.readline()
